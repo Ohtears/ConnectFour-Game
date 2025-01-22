@@ -78,9 +78,9 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
                 return (None, 100000000000000)
             elif winning_move(board, 1):
                 return (None, -10000000000000)
-            else:
+            else:  # Game is over, no more valid moves
                 return (None, 0)
-        else:
+        else:  # Depth is zero
             return (None, score_position(board, 2))
     if maximizingPlayer:
         value = -math.inf
@@ -96,6 +96,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
             alpha = max(alpha, value)
             if alpha >= beta:
                 break
+        print(f"Maximizing player: Move at column {column} with score {value}")
         return column, value
     else:
         value = math.inf
@@ -111,6 +112,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
             beta = min(beta, value)
             if alpha >= beta:
                 break
+        print(f"Minimizing player: Move at column {column} with score {value}")
         return column, value
 
 def get_valid_locations(board):
