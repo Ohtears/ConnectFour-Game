@@ -115,6 +115,11 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
         print(f"Minimizing player: Move at column {column} with score {value}")
         return column, value
 
+def ai_move(board, depth):
+    column, score = minimax(board, depth, -math.inf, math.inf, True)
+    print(f"AI's final decision: Move at column {column} with score {score}")
+    return column
+
 def get_valid_locations(board):
     return [col for col in range(COLUMN_COUNT) if is_valid_location(board, col)]
 
@@ -228,7 +233,7 @@ while not game_over:
         if np.count_nonzero(board) == 0:  # First move, ensure AI starts in the middle
             col = COLUMN_COUNT // 2
         else:
-            col, minimax_score = minimax(board, 5, -math.inf, math.inf, True)
+            col = ai_move(board, 5)
 
         if is_valid_location(board, col):
             row = get_next_open_row(board, col)
