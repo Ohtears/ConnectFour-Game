@@ -26,6 +26,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
             temp_board = board.copy()
             drop_piece(temp_board, row, col, 2)
             new_score = minimax(temp_board, depth - 1, alpha, beta, False)[1]
+            print(f"Maximizing: Depth {depth}, Column {col}, Score {new_score}")
             if new_score > value:
                 value = new_score
                 column = col
@@ -41,6 +42,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
             temp_board = board.copy()
             drop_piece(temp_board, row, col, 1)
             new_score = minimax(temp_board, depth - 1, alpha, beta, True)[1]
+            print(f"Minimizing: Depth {depth}, Column {col}, Score {new_score}")
             if new_score < value:
                 value = new_score
                 column = col
