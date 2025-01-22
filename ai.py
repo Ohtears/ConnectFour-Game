@@ -4,15 +4,15 @@ import numpy as np
 from utils import ROW_COUNT, COLUMN_COUNT, is_valid_location, get_next_open_row, winning_move, drop_piece
 
 def minimax(board, depth, alpha, beta, maximizingPlayer):
-    is_terminal = is_terminal_node(board)
+    is_terminal = is_terminal(board)
     valid_locations = get_valid_locations(board)
     
     if depth == 0 or is_terminal:
         if is_terminal:
             if winning_move(board, 2):  
-                return None, 10e7
+                return None, 1e10
             elif winning_move(board, 1):  
-                return None, -10e7
+                return None, -1e10
             else: 
                 return None, 0
         else:  
@@ -30,7 +30,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
                 value = new_score
                 best_column = col
             alpha = max(alpha, value)
-            if alpha >= beta:  
+            if alpha > beta:  
                 break
         return best_column, value
 
@@ -50,7 +50,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
                 break
         return best_column, value
 
-def ai_move(board, depth):
+def AI_move(board, depth):
     column, score = minimax(board, depth, -math.inf, math.inf, True)
     # print(f"AI's final decision: Move at column {column} with score {score}")
     return column
@@ -58,8 +58,7 @@ def ai_move(board, depth):
 def get_valid_locations(board):
     return [col for col in range(COLUMN_COUNT) if is_valid_location(board, col)]
 
-
-def is_terminal_node(board):
+def is_terminal(board):
     valid_locations = get_valid_locations(board)
     player_win = winning_move(board, 1)
     ai_win = winning_move(board, 2)
@@ -72,11 +71,16 @@ def is_terminal_node(board):
 
 def score_position(board, piece):
     score = 0
-    opp_piece = 1 if piece == 2 else 2
 
     center_array = [int(i) for i in list(board[:, COLUMN_COUNT // 2])]
     center_count = center_array.count(piece)
     score += center_count * 6 # center column
+
+    left_center_array = [int(i) for i in list(board[:, (COLUMN_COUNT // 2) - 1])]
+    right_center_array = [int(i) for i in list(board[:, (COLUMN_COUNT // 2) + 1])]
+    left_center_count = left_center_array.count(piece)
+    right_center_count = right_center_array.count(piece)
+    score += (left_center_count + right_center_count) * 3  # adjacent center
 
 
     for r in range(ROW_COUNT):
