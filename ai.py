@@ -119,7 +119,7 @@ def evaluate_window(window, piece):
     opp_piece = 1 if piece == 2 else 2
 
     if window.count(piece) == 4:  # Winning move
-        score += 10000
+        score += 1000
     elif window.count(piece) == 3 and window.count(0) == 1:  # Strong potential
         score += 100
     elif window.count(piece) == 2 and window.count(0) == 2:  # Weak potential
