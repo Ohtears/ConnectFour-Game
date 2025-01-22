@@ -6,19 +6,21 @@ from utils import ROW_COUNT, COLUMN_COUNT, is_valid_location, get_next_open_row,
 def minimax(board, depth, alpha, beta, maximizingPlayer):
     valid_locations = get_valid_locations(board)
     is_terminal = is_terminal_node(board)
+
     if depth == 0 or is_terminal:
         if is_terminal:
             if winning_move(board, 2):
-                return (None, 100000000000000)
+                return (None, 1e10)
             elif winning_move(board, 1):
-                return (None, -10000000000000)
-            else:  # Game is over, no more valid moves
+                return (None, -1e10)
+            else:
                 return (None, 0)
-        else:  # Depth is zero
+        else:
             return (None, score_position(board, 2))
+
     if maximizingPlayer:
         value = -math.inf
-        column = np.random.choice(valid_locations)
+        column = valid_locations[0]
         for col in valid_locations:
             row = get_next_open_row(board, col)
             temp_board = board.copy()
@@ -27,34 +29,25 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
             if new_score > value:
                 value = new_score
                 column = col
-            elif new_score == value:
-                # Break ties by favoring the center column or specific criteria
-                center_column = COLUMN_COUNT // 2
-                if abs(col - center_column) < abs(column - center_column):
-                    column = col
-
             alpha = max(alpha, value)
             if alpha >= beta:
                 break
-        print(f"Evaluating column {col} for maximizing player: Score = {new_score}")
         return column, value
     else:
         value = math.inf
-        column = np.random.choice(valid_locations)
+        column = valid_locations[0]
         for col in valid_locations:
             row = get_next_open_row(board, col)
             temp_board = board.copy()
             drop_piece(temp_board, row, col, 1)
             new_score = minimax(temp_board, depth - 1, alpha, beta, True)[1]
             if new_score < value:
-                
                 value = new_score
                 column = col
             beta = min(beta, value)
             if alpha >= beta:
                 break
-    print(f"Evaluating column {col} for minimizing player: Score = {new_score}")
-    return column, value
+        return column, value
 
 def ai_move(board, depth):
     column, score = minimax(board, depth, -math.inf, math.inf, True)
@@ -74,7 +67,7 @@ def score_position(board, piece):
     # Center column preference
     center_array = [int(i) for i in list(board[:, COLUMN_COUNT // 2])]
     center_count = center_array.count(piece)
-    score += center_count * 4  # Increase weight for center
+    score += center_count * 6  # Increase weight for center
 
     # Horizontal scoring
     for r in range(ROW_COUNT):
@@ -102,29 +95,22 @@ def score_position(board, piece):
             window = [board[r + 3 - i][c + i] for i in range(4)]
             score += evaluate_window(window, piece)
 
-    # Penalize opponent's potential wins
-    if winning_move(board, opp_piece):
-        score -= 10000
-
     return score
+
 
 def evaluate_window(window, piece):
     score = 0
     opp_piece = 1 if piece == 2 else 2
 
     if window.count(piece) == 4:  # Winning move
-        score += 1000
-    elif window.count(piece) == 3 and window.count(0) == 1:  # 3-in-a-row setup
+        score += 10000
+    elif window.count(piece) == 3 and window.count(0) == 1:  # Strong potential
         score += 100
-    elif window.count(piece) == 2 and window.count(0) == 2:  # Potential setup
+    elif window.count(piece) == 2 and window.count(0) == 2:  # Weak potential
         score += 10
 
     if window.count(opp_piece) == 3 and window.count(0) == 1:  # Block opponent
-        score -= 150  # Increase penalty to prioritize defense
-
-    # Reward double threats (two separate winning opportunities)
-    if window.count(piece) == 2 and window.count(opp_piece) == 0:
-        score += 50
+        score -= 150
 
     return score
 
