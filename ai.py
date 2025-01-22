@@ -76,29 +76,43 @@ def score_position(board, piece):
         row_array = [int(i) for i in list(board[r, :])]
         for c in range(COLUMN_COUNT - 3):
             window = row_array[c:c + 4]
-            score += evaluate_window(window, piece)
+            if is_valid_window(board, r, c, 'horizontal'):
+                score += evaluate_window(window, piece)
 
     # Vertical scoring
     for c in range(COLUMN_COUNT):
         col_array = [int(i) for i in list(board[:, c])]
         for r in range(ROW_COUNT - 3):
             window = col_array[r:r + 4]
-            score += evaluate_window(window, piece)
+            if is_valid_window(board, r, c, 'vertical'):
+                score += evaluate_window(window, piece)
 
     # Positive diagonal scoring
     for r in range(ROW_COUNT - 3):
         for c in range(COLUMN_COUNT - 3):
             window = [board[r + i][c + i] for i in range(4)]
-            score += evaluate_window(window, piece)
+            if is_valid_window(board, r, c, 'positive_diagonal'):
+                score += evaluate_window(window, piece)
 
     # Negative diagonal scoring
     for r in range(ROW_COUNT - 3):
         for c in range(COLUMN_COUNT - 3):
             window = [board[r + 3 - i][c + i] for i in range(4)]
-            score += evaluate_window(window, piece)
+            if is_valid_window(board, r, c, 'negative_diagonal'):
+                score += evaluate_window(window, piece)
 
     return score
 
+def is_valid_window(board, row, col, direction):
+    if direction == 'horizontal':
+        return all(board[row][col + i] != 0 or row == 0 or board[row - 1][col + i] != 0 for i in range(4))
+    elif direction == 'vertical':
+        return row == 0 or all(board[row - 1][col] != 0 for i in range(4))
+    elif direction == 'positive_diagonal':
+        return all(board[row + i][col + i] != 0 or row + i == 0 or board[row + i - 1][col + i] != 0 for i in range(4))
+    elif direction == 'negative_diagonal':
+        return all(board[row + 3 - i][col + i] != 0 or row + 3 - i == 0 or board[row + 3 - i - 1][col + i] != 0 for i in range(4))
+    return False
 
 def evaluate_window(window, piece):
     score = 0
