@@ -93,10 +93,16 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
             if new_score > value:
                 value = new_score
                 column = col
+            elif new_score == value:
+                # Break ties by favoring the center column or specific criteria
+                center_column = COLUMN_COUNT // 2
+                if abs(col - center_column) < abs(column - center_column):
+                    column = col
+
             alpha = max(alpha, value)
             if alpha >= beta:
                 break
-        print(f"Maximizing player: Move at column {column} with score {value}")
+        print(f"Evaluating column {col} for maximizing player: Score = {new_score}")
         return column, value
     else:
         value = math.inf
@@ -107,13 +113,14 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
             drop_piece(temp_board, row, col, 1)
             new_score = minimax(temp_board, depth - 1, alpha, beta, True)[1]
             if new_score < value:
+                
                 value = new_score
                 column = col
             beta = min(beta, value)
             if alpha >= beta:
                 break
-        print(f"Minimizing player: Move at column {column} with score {value}")
-        return column, value
+    print(f"Evaluating column {col} for minimizing player: Score = {new_score}")
+    return column, value
 
 def ai_move(board, depth):
     column, score = minimax(board, depth, -math.inf, math.inf, True)
@@ -128,37 +135,42 @@ def is_terminal_node(board):
 
 def score_position(board, piece):
     score = 0
+    opp_piece = 1 if piece == 2 else 2
 
-    # Score center column
+    # Center column preference
     center_array = [int(i) for i in list(board[:, COLUMN_COUNT // 2])]
     center_count = center_array.count(piece)
-    score += center_count * 3
+    score += center_count * 4  # Increase weight for center
 
-    # Score Horizontal
+    # Horizontal scoring
     for r in range(ROW_COUNT):
         row_array = [int(i) for i in list(board[r, :])]
         for c in range(COLUMN_COUNT - 3):
             window = row_array[c:c + 4]
             score += evaluate_window(window, piece)
 
-    # Score Vertical
+    # Vertical scoring
     for c in range(COLUMN_COUNT):
         col_array = [int(i) for i in list(board[:, c])]
         for r in range(ROW_COUNT - 3):
             window = col_array[r:r + 4]
             score += evaluate_window(window, piece)
 
-    # Score positive sloped diagonal
+    # Positive diagonal scoring
     for r in range(ROW_COUNT - 3):
         for c in range(COLUMN_COUNT - 3):
             window = [board[r + i][c + i] for i in range(4)]
             score += evaluate_window(window, piece)
 
-    # Score negative sloped diagonal
+    # Negative diagonal scoring
     for r in range(ROW_COUNT - 3):
         for c in range(COLUMN_COUNT - 3):
             window = [board[r + 3 - i][c + i] for i in range(4)]
             score += evaluate_window(window, piece)
+
+    # Penalize opponent's potential wins
+    if winning_move(board, opp_piece):
+        score -= 10000
 
     return score
 
@@ -166,17 +178,22 @@ def evaluate_window(window, piece):
     score = 0
     opp_piece = 1 if piece == 2 else 2
 
-    if window.count(piece) == 4:
+    if window.count(piece) == 4:  # Winning move
         score += 1000
-    elif window.count(piece) == 3 and window.count(0) == 1:
+    elif window.count(piece) == 3 and window.count(0) == 1:  # 3-in-a-row setup
         score += 100
-    elif window.count(piece) == 2 and window.count(0) == 2:
+    elif window.count(piece) == 2 and window.count(0) == 2:  # Potential setup
         score += 10
 
-    if window.count(opp_piece) == 3 and window.count(0) == 1:
-        score -= 1000
+    if window.count(opp_piece) == 3 and window.count(0) == 1:  # Block opponent
+        score -= 150  # Increase penalty to prioritize defense
+
+    # Reward double threats (two separate winning opportunities)
+    if window.count(piece) == 2 and window.count(opp_piece) == 0:
+        score += 50
 
     return score
+
 
 # Pygame setup
 pygame.init()
