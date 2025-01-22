@@ -82,7 +82,7 @@ while not game_over:
                 turn %= 2
 
     if play_with_ai and turn == 1 and not game_over:
-        if np.count_nonzero(board) == 0:  # First move, AI starts in the middle 
+        if np.count_nonzero(board) == 0:  #middle start
             col = COLUMN_COUNT // 2
         else:
             col = ai_move(board, 5)
