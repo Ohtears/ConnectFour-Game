@@ -85,7 +85,7 @@ while not game_over:
         if np.count_nonzero(board) == 0:  #middle start
             col = COLUMN_COUNT // 2
         else:
-            col = ai_move(board, 5)
+            col = AI_move(board, 5)
 
         if is_valid_location(board, col):
             row = get_next_open_row(board, col)
