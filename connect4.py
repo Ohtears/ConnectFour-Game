@@ -3,7 +3,7 @@ import pygame
 import sys
 import math
 
-from ai import ai_move
+from ai import AI_move
 from utils import create_board, drop_piece, is_valid_location, get_next_open_row, winning_move, ROW_COUNT, COLUMN_COUNT
 
 BLUE = (0,0,255)

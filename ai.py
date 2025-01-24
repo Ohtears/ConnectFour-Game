@@ -10,9 +10,9 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
     if depth == 0 or is_terminal:
         if is_terminal:
             if winning_move(board, 2):  
-                return None, 10e7
+                return None, 10e10
             elif winning_move(board, 1):  
-                return None, -10e7
+                return None, -10e10
             else: 
                 return None, 0
         else:  
@@ -50,7 +50,7 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
                 break
         return best_column, value
 
-def ai_move(board, depth):
+def AI_move(board, depth):
     column, score = minimax(board, depth, -math.inf, math.inf, True)
     # print(f"AI's final decision: Move at column {column} with score {score}")
     return column
@@ -78,6 +78,11 @@ def score_position(board, piece):
     center_count = center_array.count(piece)
     score += center_count * 6 # center column
 
+    left_center_array = [int(i) for i in list(board[:, (COLUMN_COUNT // 2) - 1])]
+    right_center_array = [int(i) for i in list(board[:, (COLUMN_COUNT // 2) + 1])]
+    left_center_count = left_center_array.count(piece)
+    right_center_count = right_center_array.count(piece)
+    score += (left_center_count + right_center_count) * 3  # adjacent center
 
     for r in range(ROW_COUNT):
         row_array = [int(i) for i in list(board[r, :])]
